@@ -65,7 +65,19 @@ def home():
 
 @app.route('/api', methods=['GET'])
 def api_main():
-    return jsonify('Hello, World!'), 200
+    # Sorry, I am lazy to connect swagger by flask-apispec
+    data = {
+        '/api/students/modify/<id> (PATCH)': {
+            200: 'Student Object'
+        },
+        '/api/students/change/<id> (PUT),': {
+            200: 'Student Object'
+        },
+        '/api/deleteStudent/<id> (DELETE)': {
+            204: 'resource deleted successfully'
+        }
+    }
+    return jsonify(data), 200
 
 
 @app.route('/api/students', methods=['GET'])
@@ -127,7 +139,7 @@ def patch_student(id: int):
     student.save()
     serializer = StudentSchema()
     data = serializer.dump(student)
-    return data, 200
+    return jsonify(data), 200
 
 
 @app.route('/api/students/change/<int:id>', methods=['PUT'])
@@ -145,7 +157,7 @@ def put_student(id: int):
 
     serializer = StudentSchema()
     data = serializer.dump(student)
-    return data, 200
+    return jsonify(data), 200
 
 
 @app.route('/api/students/delete/<int:id>', methods=['DELETE'])
