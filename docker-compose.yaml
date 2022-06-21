@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  app:
+    container_name: flask_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    ports:
+      - "8090:8090"
+    restart: always
+    command: api.py
+    environment:
+      DB_USERNAME: "carol"
+      DB_PASSWORD: "carol"
+      DB_HOSTNAME: database
+      DB_PORT: 3306
+      DB_NAME: "student"
+    depends_on:
+      - database
+    networks:
+      - flask_api
+    volumes:
+      - ./app.py:/app/app.py:ro
+
+  database:
+    image: mysql/mysql-server:latest
+    container_name: flask_api_database
+    ports:
+      - "3306:3306"
+    volumes:
+      - database-volume:/var/lib/mysql
+      - ./database-volume/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - flask_api
+    environment:
+      - MYSQL_ROOT_PASSWORD=carol
+      - MYSQL_PASSWORD=carol
+      - MYSQL_USER=carol
+      - MYSQL_DATABASE=student
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent" ]
+      interval: 3s
+      timeout: 20s
+      retries: 5
+      start_period: 30s
+
+networks:
+  flask_api:
+    name: flask_api_network
+    driver: bridge
+
+volumes:
+  database-volume:
